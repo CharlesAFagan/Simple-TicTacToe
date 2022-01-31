@@ -224,8 +224,8 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        moveNum++;
         if(gameState==1){
+            moveNum++;
             if(e.getButton() == MouseEvent.BUTTON1){
                 int x = e.getX()/300;
                 int y = e.getY()/300;
