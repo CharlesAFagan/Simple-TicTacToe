@@ -121,16 +121,16 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     private int[] findBestMove(){
         int lines[][][]=grid.getLines(); // get current line array
         int line; // used to store the product of row under test
-        int pos[]=new int[2]; // used to return the position of the move
+        int pos[]=new int[2]; // used to store and return the position of the move
         int xo = 9;// used to search for winning moves and then defensive moves
         //a line product of 9 indicates the line has two O's while 4 = two X's
         
         
-        while(xo>3){  
-            for(int i=0; i<8; i++){// look for possible winning/defensive moves and return position if found
+        while(xo>3){ // first looks for a product of 9 to prioritize winning move, then 4 for defensive move that would block player from winning
+            for(int i=0; i<8; i++){// look for possible winning/defensive moves
                 line=lines[i][0][0]*lines[i][1][0]*lines[i][2][0];
                 if(line==xo){ 
-                    for(int j=0;j<3;j++){// if it does, find the remaining open block and return its position
+                    for(int j=0;j<3;j++){// if found, return the position of the remaining open block for that line
                         if(lines[i][j][0]==1){
                             pos[0]=lines[i][j][1];
                             pos[1]=lines[i][j][2];
@@ -139,9 +139,9 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
                     }
                 }
             }
-            xo-=5;
+            xo-=5;//change xo from 9 to 4, second iteration will make xo less than 3 to stop the while loop
         }
-        return randomMove();// if no good move found return random
+        return randomMove();// if no good move is found, return random
     }    
     
     @Override
