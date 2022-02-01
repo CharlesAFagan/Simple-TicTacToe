@@ -107,15 +107,11 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     private int[] randomMove(){
         Random rand = new Random();
         int pos[] = new int[2];
-        int x;
-        int y;
         Boolean success = false;
         while(!success){
-            x = rand.nextInt(3);
-            y = rand.nextInt(3);
-            if(grid.grid[x][y].getBlockValue()==1){
-                pos[0]=x;
-                pos[1]=y;
+            pos[0] = rand.nextInt(3);
+            pos[1] = rand.nextInt(3);
+            if(grid.grid[pos[0]][pos[1]].getBlockValue()==1){
                 success = true;
             }
         }
