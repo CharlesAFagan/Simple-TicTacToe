@@ -40,11 +40,11 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     }
     
     public boolean win(int rowScore){
-        if(rowScore==1){
+        if(rowScore==8){
             playerWin();
             return true;
         }
-        if(rowScore==8){
+        if(rowScore==27){
             computerWin();
             return true;
         }
@@ -93,7 +93,7 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     public boolean movesLeft(){
         for(int i = 0; i < grid.grid.length; i++){
             for(int j = 0; j < grid.grid[0].length; j++){
-                if(grid.grid[i][j].getBlockValue()==0){
+                if(grid.grid[i][j].getBlockValue()==1){
                     return true;
                 }                
             }
@@ -106,7 +106,7 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
         if(moveNum>=1){
             try{
                 int[] move = findBestMove();
-                grid.grid[move[0]][move[1]].setBlockValue(2);
+                grid.grid[move[0]][move[1]].setBlockValue(3);
             }catch (Exception e){
                 randomMove();
             }
@@ -123,75 +123,65 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
         while(!success){
                 x = rand.nextInt(3);
                 y = rand.nextInt(3);
-                if(grid.grid[x][y].getBlockValue()==0){
-                    grid.grid[x][y].setBlockValue(2);
+                if(grid.grid[x][y].getBlockValue()==1){
+                    grid.grid[x][y].setBlockValue(3);
                     success = true;
                 }
             }
     }
     
     public int[] findBestMove()throws Exception{
-        int[] pos = new int[2];
-        int[] nums = new int[3];
-        for(int i = 0; i < grid.grid.length; i++){
-            nums = new int[3];
-            for(int j = 0; j < grid.grid[0].length; j++){
-                nums[j] = grid.grid[i][j].getBlockValue();
-            }
-            if(nums[0]+nums[1]+nums[2]==4){
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==0){
-                        pos[0]=i;
-                        pos[1]=k;
-                        return pos;
-                    }
+        int lines[][][]=new int[8][3][3]; // Array to store the eight winning lines and grid positions
+        int line=0; // used to store the product of row under test
+        int pos[]=new int[2]; // used to return the position of the move
+        // convert GameGrid block values to an array of all eight winning lines
+        for(int i=0; i<3;i++){
+            for(int j=0; j<3;j++){
+                lines[i][j][0]=grid.grid[i][j].getBlockValue();// rows
+                lines[i][j][1]=i;
+                lines[i][j][2]=j;
+                lines[i+3][j][0]=grid.grid[j][i].getBlockValue();// columns
+                lines[i+3][j][1]=j;
+                lines[i+3][j][2]=i;
+                if(i==j){// top left to bottom right diagonal
+                    lines[6][i][0]=grid.grid[i][j].getBlockValue();
+                    lines[6][i][1]=i;
+                    lines[6][i][2]=j;
+                }// top right to bottom left diagonal
+                if(i-j==2||(i==1&&j==1)||j-i==2){
+                    lines[7][i][0]=grid.grid[i][j].getBlockValue();
+                    lines[7][i][1]=i;
+                    lines[7][i][2]=j;
                 }
             }
-            if(nums[0]+nums[1]+nums[2]==2){
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==2)break;
-                }
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==0){
-                        pos[0]=i;
-                        pos[1]=k;
-                        return pos;
-                    }
-                }
-            }
-        } 
-        for(int j = 0; j < grid.grid[0].length; j++){
-            nums = new int[3];
-            for(int i = 0; i < grid.grid.length; i++){
-                nums[i] = grid.grid[i][j].getBlockValue();
-            }
-            if(nums[0]+nums[1]+nums[2]==4){
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==0){
-                        pos[0]=k;
-                        pos[1]=j;
-                        return pos;
-                    }
-                }
-            }
-            if(nums[0]+nums[1]+nums[2]==2){
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==2)break;
-                }
-                for(int k = 0; k<nums.length; k++){
-                    if(nums[k]==0){
-                        pos[0]=k;
-                        pos[1]=j;
+        }
+        // look for possible winning moves and return position if found
+        for(int i=0; i<8;i++){
+            line=lines[i][0][0]*lines[i][1][0]*lines[i][2][0];
+            if(line==9){ // product of 9 indicates the line has two O's
+                for(int j=0;j<3;j++){// if it does, find the remaining open block and return its position
+                    if(lines[i][j][0]==1){
+                        pos[0]=lines[i][j][1];
+                        pos[1]=lines[i][j][2];
                         return pos;
                     }
                 }
             }
         }
-        if(grid.grid[1][1].getBlockValue()==0){
-            pos[0]=pos[1]=1;
-            return pos;
-        }       
-        throw new Exception();
+        // look for best defensive move if no winning move is found
+        for(int i=0; i<8;i++){
+            line=lines[i][0][0]*lines[i][1][0]*lines[i][2][0];
+            if(line==4){ // product of 4 indicates the line has two X's
+                for(int j=0;j<3;j++){
+                    if(lines[i][j][0]==1){
+                        pos[0]=lines[i][j][1];
+                        pos[1]=lines[i][j][2];
+                        return pos;
+                    }
+                }
+            }
+        }
+        throw new Exception();// Exception to be thrown if no good move is found
     }    
     
     @Override
@@ -229,7 +219,9 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
             if(e.getButton() == MouseEvent.BUTTON1){
                 int x = e.getX()/300;
                 int y = e.getY()/300;
-                grid.grid[x][y].setBlockValue(1);
+                if(grid.grid[x][y].getBlockValue()==1){
+                    grid.grid[x][y].setBlockValue(2);
+                }else return;
             }
             if(checkWin()){
                 repaint();
@@ -275,6 +267,6 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     public void keyPressed(KeyEvent e) {}
 
     @Override
-    public void keyReleased(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {}    
     
 }
