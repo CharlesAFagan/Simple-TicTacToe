@@ -21,8 +21,8 @@ import javax.swing.JPanel;
  */
 public class PlayGame extends JPanel implements MouseListener, KeyListener{
     
-    private int pScore = 0;
-    private int cScore = 0;
+    private int pScore = 0; // player score
+    private int cScore = 0; // computer score
     
     private int gameState = 0; // 0 = waiting to start; 1 = game in progress; 2 = Player win; 3 = computer win; 4 = stalemate
     private int gameNum = 1;
@@ -31,10 +31,13 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     
     public PlayGame(){
         grid = new GameGrid();
-        addMouseListener(this);
-        addKeyListener(this);
+        listeners();
         setFocusable(true);
-//        setFocusTraversalKeysEnabled(false);
+    }
+    
+    private void listeners(){
+        addMouseListener(this);
+        addKeyListener(this);        
     }
     
     private boolean win(int rowScore){
