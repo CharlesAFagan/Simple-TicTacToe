@@ -37,5 +37,31 @@ public class GameGrid {
         g.setColor(Color.red);
         g.drawString("Player Score = " + ps, 70, 30);
         g.drawString("Computer Score = " + cs, 660, 30);
+    }
+    
+    public int[][][] getLines(){
+        int lines[][][]=new int[8][3][3]; // Array to store the eight winning lines and grid positions
+        // convert GameGrid block values to an array of all eight winning lines
+        for(int i=0; i<3;i++){
+            for(int j=0; j<3;j++){
+                lines[i][j][0]=grid[i][j].getBlockValue();// rows
+                lines[i][j][1]=i;
+                lines[i][j][2]=j;
+                lines[i+3][j][0]=grid[j][i].getBlockValue();// columns
+                lines[i+3][j][1]=j;
+                lines[i+3][j][2]=i;
+                if(i==j){// top left to bottom right diagonal
+                    lines[6][i][0]=grid[i][j].getBlockValue();
+                    lines[6][i][1]=i;
+                    lines[6][i][2]=j;
+                }// top right to bottom left diagonal
+                if(i-j==2||(i==1&&j==1)||j-i==2){
+                    lines[7][i][0]=grid[i][j].getBlockValue();
+                    lines[7][i][1]=i;
+                    lines[7][i][2]=j;
+                }
+            }
+        }
+        return lines;
     }   
 }

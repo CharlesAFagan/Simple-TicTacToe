@@ -15,13 +15,13 @@ import java.awt.Graphics2D;
  */
 public class GridBlock {
     
-    private int fill; // 0=blank, 1="X", 2="O"
+    private int fill; // 1=blank, 2="X", 3="O"
     private int posX;
     private int posY;
     private int blockSize;
     
     public GridBlock( int row, int col){
-        fill = 0;
+        fill = 1;
         posX = row;
         posY = col;
         blockSize = 300;
@@ -37,11 +37,11 @@ public class GridBlock {
         g.setColor(Color.white);
         g.drawRect(posX*blockSize, posY*blockSize, blockSize, blockSize);
         
-        if(fill==1){
+        if(fill==2){
             g.setColor(Color.yellow);
             g.drawString("X", (posX*blockSize)+(blockSize/3), (posY*blockSize)+((blockSize/3)*2));
         }
-        if(fill==2){
+        if(fill==3){
             g.setColor(Color.yellow);
             g.drawString("O", (posX*blockSize)+(blockSize/3), (posY*blockSize)+((blockSize/3)*2));
         }
@@ -52,7 +52,7 @@ public class GridBlock {
     }
     
     public void setBlockValue(int v){
-        if(fill==0) fill = v;
+        if(fill==1) fill = v;
     }
 }
         
