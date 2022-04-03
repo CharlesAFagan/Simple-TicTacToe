@@ -54,7 +54,7 @@ public class GameGrid {
         return product;
     }
     
-    public int[] findMove() throws InterruptedException{
+    public int[] findMove(){
         try{
             return winningMove();
         }catch(NoValidMoveException e){}
