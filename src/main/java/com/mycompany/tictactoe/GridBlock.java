@@ -15,44 +15,44 @@ import java.awt.Graphics2D;
  */
 public class GridBlock {
     
-    private int fill; // 1=blank, 2="X", 3="O"
-    private int posX;
-    private int posY;
-    private int blockSize;
+    private int blockValue; // 1=empty, 2="X", 3="O"
+    private final int position[];
+    private final int size;
     
-    public GridBlock( int row, int col){
-        fill = 1;
-        posX = row;
-        posY = col;
-        blockSize = 300;
+    public GridBlock(int row, int col){
+        blockValue = 1;
+        position = new int[]{row, col};
+        size = 300;
     }
     
     public void drawBlock(Graphics2D g){
-        Font size = new Font("SansSerif", Font.BOLD, blockSize/2);
-        g.setFont(size);
+        Font font = new Font("SansSerif", Font.BOLD, size/2);
+        String xy = "";
+        g.setFont(font);
         g.setColor(Color.black);
-        g.fillRect(posX*blockSize, posY*blockSize, blockSize, blockSize);
+        g.fillRect(position[0]*size, position[1]*size, size, size);
 
         g.setStroke(new BasicStroke(3));
         g.setColor(Color.white);
-        g.drawRect(posX*blockSize, posY*blockSize, blockSize, blockSize);
+        g.drawRect(position[0]*size, position[1]*size, size, size);
         
-        if(fill==2){
-            g.setColor(Color.yellow);
-            g.drawString("X", (posX*blockSize)+(blockSize/3), (posY*blockSize)+((blockSize/3)*2));
-        }
-        if(fill==3){
-            g.setColor(Color.yellow);
-            g.drawString("O", (posX*blockSize)+(blockSize/3), (posY*blockSize)+((blockSize/3)*2));
-        }
+        if(blockValue==2) xy = "X";
+        if(blockValue==3) xy = "O";
+        g.setColor(Color.yellow);
+        g.drawString(xy, (position[0]*size)+(size/3), 
+                                (position[1]*size)+((size/3)*2));
     }
     
     public int getBlockValue(){
-        return fill;
+        return blockValue;
     }
     
-    public void setBlockValue(int v){
-        if(fill==1) fill = v;
+    public void setBlockValue(int v){// Only empty blocks can be set
+        if(blockValue==1) blockValue = v;
+    }
+    
+    public int[] getBlockPosition(){
+        return position;
     }
 }
         

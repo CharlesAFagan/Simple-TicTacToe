@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Random;
 import javax.swing.JPanel;
 
 /**
@@ -21,11 +20,11 @@ import javax.swing.JPanel;
  */
 public class PlayGame extends JPanel implements MouseListener, KeyListener{
     
-    private int pScore = 0; // player score
-    private int cScore = 0; // computer score
+    private int playerScore = 0;
+    private int computerScore = 0;
     
-    private int gameState = 0; // 0 = waiting to start; 1 = game in progress; 2 = Player win; 3 = computer win; 4 = stalemate
-    private int gameNum = 1;
+    private int gameState = 0;//-->0=waiting to start; 1=game in progress; 
+    private int gameNumber = 1;//  2=Player win; 3=computer win; 4=stalemate
     
     private GameGrid grid;
     
@@ -40,109 +39,33 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
         addKeyListener(this);        
     }
     
-    private boolean win(int rowScore){
-        if(rowScore==8){
-            playerWin();
-            return true;
-        }
-        if(rowScore==27){
-            computerWin();
-            return true;
-        }
-        return false;
-    }
-    
-    private void playerWin(){
-        pScore++;
-        gameState = 2;
-    }
-    
-    private void computerWin(){
-        cScore++;
-        gameState = 3;
-    }
-    
-    private void stalemate(){
-        gameState = 4;
-    }
-    
-    private boolean checkWin(){
-        int lines[][][]=grid.getLines(); // get current line array
-        int line; // used to store the product of row under test
-        
-        // look for possible winning lines
-        for(int i=0; i<8;i++){
-            line=lines[i][0][0]*lines[i][1][0]*lines[i][2][0];
-            if(win(line)) return true;
-        }
-        
-        // if no moves left declare stalemate
-        if(!movesLeft()){
-            stalemate();
-            return true;
-        }
-        return false;
-    }
-    
-    private boolean movesLeft(){
-        for (GridBlock[] grid1 : grid.grid) {
-            for (int j = 0; j < grid.grid[0].length; j++) {
-                if (grid1[j].getBlockValue() == 1) {
-                    return true;
-                }                
-            }
-        } 
-        return false;
-    }
-    
-    private void computerMove(){
-        
-        int[] move = findBestMove();
-        grid.grid[move[0]][move[1]].setBlockValue(3);
-        
+    private void computerMove(){     
+        grid.makeMove(grid.findMove(), 3);        
         checkWin();
         repaint();
     }
         
-    private int[] randomMove(){
-        Random rand = new Random();
-        int pos[] = new int[2];
-        Boolean success = false;
-        while(!success){
-            pos[0] = rand.nextInt(3);
-            pos[1] = rand.nextInt(3);
-            if(grid.grid[pos[0]][pos[1]].getBlockValue()==1){
-                success = true;
+    private boolean checkWin(){              
+        for(int i=0; i<8;i++){// look for possible winning lines
+            int line = grid.getLineProduct(i);
+            if(line==8){
+                playerScore++;
+                gameState = 2;//player win
+                return true;
             }
+            if(line==27){
+                computerScore++;
+                gameState = 3;//computer win
+                return true;
+            }
+        }        
+        if(!grid.movesLeft()){
+            gameState = 4;// stalemate
+            return true;
         }
-        return pos;
+        return false;
     }
     
-    private int[] findBestMove(){
-        int lines[][][]=grid.getLines(); // get current line array
-        int line; // used to store the product of row under test
-        int pos[]=new int[2]; // used to store and return the position of the move
-        int xo = 9;// used to search for winning moves and then defensive moves
-        //a line product of 9 indicates the line has two O's while 4 = two X's
-        
-        
-        while(xo>3){ // first looks for a product of 9 to prioritize winning move, then 4 for defensive move that would block player from winning
-            for(int i=0; i<8; i++){// look for possible winning/defensive moves
-                line=lines[i][0][0]*lines[i][1][0]*lines[i][2][0];
-                if(line==xo){ 
-                    for(int j=0;j<3;j++){// if found, return the position of the remaining open block for that line
-                        if(lines[i][j][0]==1){
-                            pos[0]=lines[i][j][1];
-                            pos[1]=lines[i][j][2];
-                            return pos;
-                        }
-                    }
-                }
-            }
-            xo-=5;//change xo from 9 to 4, second iteration will make xo less than 3 to stop the while loop
-        }
-        return randomMove();// if no good move is found, return random
-    }    
     
     @Override
     public void paint(Graphics g){
@@ -156,10 +79,10 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
             g.drawString("Press 'Enter' to begin new game", 120, 150);
         }
         if(gameState==1){            
-            grid.draw((Graphics2D)g,pScore,cScore);
+            grid.draw((Graphics2D)g,playerScore,computerScore);
         }
         if(gameState>1){
-            grid.draw((Graphics2D)g,pScore,cScore);
+            grid.draw((Graphics2D)g,playerScore,computerScore);
             size = new Font("SansSerif", Font.BOLD, 900/12);
             g.setFont(size);
             g.setColor(Color.red);
@@ -176,11 +99,8 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
     public void mouseClicked(MouseEvent e) {
         if(gameState==1){
             if(e.getButton() == MouseEvent.BUTTON1){
-                int x = e.getX()/300;
-                int y = e.getY()/300;
-                if(grid.grid[x][y].getBlockValue()==1){
-                    grid.grid[x][y].setBlockValue(2);
-                }else return;
+                int[] position = {e.getX()/300, e.getY()/300};
+                if(!grid.makeMove(position, 2)) return;
             }
             if(checkWin()){
                 repaint();
@@ -200,9 +120,9 @@ public class PlayGame extends JPanel implements MouseListener, KeyListener{
             }
             if(gameState>1){
                 gameState = 1;
-                gameNum += 1;
+                gameNumber += 1;
                 grid = new GameGrid();
-                if(gameNum%2==0){
+                if(gameNumber%2==0){
                    computerMove(); 
                 }else repaint();               
             }
